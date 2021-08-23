@@ -6,7 +6,21 @@ namespace Lenguaje2
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            try
+            {
+                using (Lenguaje l = new Lenguaje("C:\\Archivos\\suma.cpp"))
+                {
+                    /*while (!l.FinDeArchivo())
+                    {
+                        l.NextToken();
+                    }*/
+                    l.Programa();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }
