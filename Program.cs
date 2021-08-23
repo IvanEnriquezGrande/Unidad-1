@@ -10,10 +10,6 @@ namespace Lenguaje2
             {
                 using (Lenguaje l = new Lenguaje("C:\\Archivos\\suma.cpp"))
                 {
-                    /*while (!l.FinDeArchivo())
-                    {
-                        l.NextToken();
-                    }*/
                     l.Programa();
                 }
             }
