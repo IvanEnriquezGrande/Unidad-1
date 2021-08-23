@@ -1,3 +1,10 @@
 #Direccion del proyecto
 
 Path.txt
+
+
+#archivos del proyecto
+
+Lenguaje2.csproj
+bin/*
+obj/*
