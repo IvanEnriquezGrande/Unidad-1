@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Lenguaje2
 {
-    class Lexico : Token, IDisposable
+    class Lexico: Token, IDisposable
     {
         private StreamReader archivo;
         protected StreamWriter bitacora;
@@ -13,7 +13,7 @@ namespace Lenguaje2
         protected int linea, caracter;
         const int F = -1;
         const int E = -2;
-        int[,] trand6x = { // WS,EF, L, D, ., +, -, E, =, :, ;, &, |, !, >, <, *, /, %, ", ', ?,La, {, },#10
+        int[,] trand   = { // WS,EF, L, D, ., +, -, E, =, :, ;, &, |, !, >, <, *, /, %, ", ', ?,La, {, },#10
                             {  0, F, 1, 2,29,17,18, 1, 8, 9,11,12,13,15,26,27,20,32,20,22,24,28,29,30,31, 0 },//0
                             {  F, F, 1, 1, F, F, F, 1, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F },//1
                             {  F, F, F, 2, 3, F, F, 5, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F },//2
@@ -40,7 +40,7 @@ namespace Lenguaje2
                             {  F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F },//23
                             { 24, E,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,25,24,24,24,24, E },//24
                             {  F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F },//25
-                            {  F, F, F, F, F, F, F, F,16, F, F, F, F, F, 36, F, F, F, F, F, F, F, F, F, F, F },//26
+                            {  F, F, F, F, F, F, F, F,16, F, F, F, F, F,36, F, F, F, F, F, F, F, F, F, F, F },//26
                             {  F, F, F, F, F, F, F, F,16, F, F, F, F, F,16,37, F, F, F, F, F, F, F, F, F, F },//27
                             {  F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F },//28
                             {  F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F },//29
@@ -58,7 +58,7 @@ namespace Lenguaje2
         public Lexico()
         {
             linea = caracter = 1;
-            nombreArchivo = "suma.cpp";
+            nombreArchivo = "prueba.cpp";
 
             Console.WriteLine("Compilando prueba.cpp");
             Console.WriteLine("Iniciando analisis lexico.");
@@ -97,7 +97,7 @@ namespace Lenguaje2
             }
 
             if (File.Exists(nombre))
-            {
+            {                
                 archivo = new StreamReader(nombre);
 
                 string log = Path.ChangeExtension(nombre, "log");
@@ -140,7 +140,7 @@ namespace Lenguaje2
             {
                 transicion = (char)archivo.Peek();
 
-                estado = trand6x[estado, columna(transicion)];
+                estado = trand[estado, columna(transicion)];
                 clasificar(estado);
 
                 if (estado >= 0)
@@ -165,13 +165,26 @@ namespace Lenguaje2
                 }
             }
 
+            setContenido(palabra);
+            
             if (estado == -2)
             {
-                errorLexico(linea, caracter);
+                if (getClasificacion() == clasificaciones.cadena)
+                {
+                    throw new Error(bitacora, "Error lexico: Se esperaban comillas (\") o comilla (') de cierre. (" + linea + ", " + caracter + ")");
+                }
+                else if (getClasificacion() == clasificaciones.numero)
+                {
+                    throw new Error(bitacora, "Error lexico: Se esperaba un dígito. (" + linea + ", " + caracter + ")");
+                }
+                else
+                {
+                    throw new Error(bitacora, "Error lexico: Se esperaba un cierre de comentario (*/). (" + linea + ", " + caracter + ")");
+                }                
             }
-            else if (palabra != "")
+            else if (getClasificacion() == clasificaciones.identificador)
             {
-                setContenido(palabra);
+                
                 switch (palabra)
                 {
                     case "char":
@@ -198,34 +211,16 @@ namespace Lenguaje2
                     case "do":
                         setClasificacion(clasificaciones.ciclo);
                         break;
-                }
+                }                
+            }
 
+            if (getContenido() != "")
+            {
                 bitacora.WriteLine("Token = " + getContenido());
                 bitacora.WriteLine("Clasificacion = " + getClasificacion());
-            }
+            }            
         }
-
-        private void errorLexico(int linea, int caracter)
-        {
-            clasificaciones clasif = getClasificacion();
-            string mensaje = "Error léxico linea " + linea + " caracter " + caracter + ": ";
-
-            if (clasif == clasificaciones.cadena)
-            {
-                mensaje += "Se esperaban comillas (\") o comilla (') de cierre.";
-            }
-            else if (clasif == clasificaciones.numero)
-            {
-                mensaje += "Se esperaba un dígito.";
-            }
-            else
-            {
-                mensaje += "Se esperaba un cierre de comentario (*/)";
-            }
-
-            bitacora.WriteLine(mensaje);
-            throw new Exception(mensaje);
-        }
+        
 
         private void clasificar(int estado)
         {
@@ -289,10 +284,10 @@ namespace Lenguaje2
                     setClasificacion(clasificaciones.operadorTernario);
                     break;
                 case 36:
-                    setClasificacion(clasificaciones.flujoSalida);
+                    setClasificacion(clasificaciones.flujoEntrada);
                     break;
                 case 37:
-                    setClasificacion(clasificaciones.flujoEntrada);
+                    setClasificacion(clasificaciones.flujoSalida);
                     break;
             }
         }

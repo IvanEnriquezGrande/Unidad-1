@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Lenguaje2
 {
-    class Token
+    class Token: Error
     {
         public enum clasificaciones
         {
