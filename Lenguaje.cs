@@ -4,11 +4,11 @@ using System.Text;
 
 // Requerimiento 1: Implementar las secuencias de escape: \n, \t cuando se imprime una cadena y 
 //                  eliminar las dobles comillas.
-// Requerimiento 2: Levantar excepciones en la clase Stack.
-// Requerimiento 3: Agregar el tipo de dato en el Inserta de ListaVariables.
-// Requerimiento 4: Validar existencia o duplicidad de variables. Mensaje de error: 
-//                  "Error de sintaxis: La variable (x26) no ha sido declarada."
-//                  "Error de sintaxis: La variables (x26) está duplicada." 
+// Requerimiento 2: Levantar excepciones en la clase Stack. ERROR EN EL STACK UNDERFLOW
+// Requerimiento 3: Agregar el tipo de dato en el Inserta de ListaVariables. LISTO
+// Requerimiento 4: Validar existencia o duplicidad de variables. Mensaje de error: LISTO
+//                  "Error de sintaxis: La variable (x26) no ha sido declarada." LISTO
+//                  "Error de sintaxis: La variables (x26) está duplicada."  LISTO
 
 namespace Lenguaje2
 {
@@ -82,14 +82,28 @@ namespace Lenguaje2
         }
 
         // Lista_IDs -> identificador (= Expresion)? (,Lista_IDs)? 
-        private void Lista_IDs()
+        private void Lista_IDs(string tipo)
         {          
             string nombre = getContenido();
             match(clasificaciones.identificador); // Validar duplicidad
 
             if (!l.Existe(nombre))
             {
-                l.Inserta(nombre, Variable.tipo.CHAR);
+                switch(tipo)
+                {
+                    case "int":
+                        l.Inserta(nombre, Variable.tipo.INT);
+                        break;
+                    case "float":
+                        l.Inserta(nombre, Variable.tipo.FLOAT);
+                        break;
+                    case "char":
+                        l.Inserta(nombre, Variable.tipo.CHAR);
+                        break;
+                    case "string":
+                        l.Inserta(nombre, Variable.tipo.STRING);
+                        break;
+                }        
             }
             else
             {
@@ -106,15 +120,18 @@ namespace Lenguaje2
             if (getContenido() == ",")
             {
                 match(",");
-                Lista_IDs();
+                Lista_IDs(tipo);
             }
         }
 
         // Variables -> tipoDato Lista_IDs; 
         private void Variables()
-        {
+        {   
+            //inicia modificacion
+            string tipo = getContenido(); //guarda el tipo de dato
+            Console.WriteLine("\nTipo dato normal:" + tipo);
             match(clasificaciones.tipoDato);
-            Lista_IDs();
+            Lista_IDs(tipo);
             match(clasificaciones.finSentencia);           
         }
 
@@ -141,8 +158,16 @@ namespace Lenguaje2
             {
                 match("cin");
                 match(clasificaciones.flujoEntrada);
+                
+                //Comprobar que existe 
+                string nombre = getContenido();
                 match(clasificaciones.identificador); // Validar existencia
+                if (!l.Existe(nombre))
+                {
+                    throw new Error(bitacora, "Error de sintaxis: Variable no ha sido declarda  (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                }
                 match(clasificaciones.finSentencia);
+                //fin de la modificacion
             }
             else if (getContenido() == "cout")
             {
@@ -155,12 +180,20 @@ namespace Lenguaje2
                 Constante();
             }
             else if (getClasificacion() == clasificaciones.tipoDato)
-            {
+            {   
+                //Console.WriteLine("Tipo dato normal:" + getContenido());
                 Variables();
             }            
             else
-            {
+            {   
+                //Modificacion 
+                string nombre = getContenido();
                 match(clasificaciones.identificador); // Validar existencia
+                if(!l.Existe(nombre))
+                {
+                    throw new Error(bitacora, "Error de sintaxis: Variable no ha sido declarda  (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                }
+                
                 match(clasificaciones.asignacion);
 
                 if (getClasificacion() == clasificaciones.cadena)
@@ -192,8 +225,35 @@ namespace Lenguaje2
         private void Constante()
         {
             match("const");
+            //inicia modificacion
+            string tipo = getContenido();
+            Console.WriteLine("Const Iipo: " + tipo);
             match(clasificaciones.tipoDato);
+            string nombre = getContenido();         
             match(clasificaciones.identificador); // Validar duplicidad
+            if (!l.Existe(nombre))
+            {
+                switch(tipo)
+                {
+                    case "int":
+                        l.Inserta(nombre, Variable.tipo.INT);
+                        break;
+                    case "float":
+                        l.Inserta(nombre, Variable.tipo.FLOAT);
+                        break;
+                    case "char":
+                        l.Inserta(nombre, Variable.tipo.CHAR);
+                        break;
+                    case "string":
+                        l.Inserta(nombre, Variable.tipo.STRING);
+                        break;
+                }
+            }
+            else
+            {
+                // Levantar excepción
+                throw new Error(bitacora, "Error de sintaxis: Variable duplicada (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+            } 
             match(clasificaciones.asignacion);
 
             if (getClasificacion() == clasificaciones.numero)
@@ -225,7 +285,13 @@ namespace Lenguaje2
             }
             else
             {
+                //Modificacion
+                string nombre = getContenido();
                 match(clasificaciones.identificador); // Validar existencia
+                if(!l.Existe(nombre)){
+                    throw new Error(bitacora, "Error de sintaxis: Variable no ha sido declarda  (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                }
+                //fin modificacion
             }
 
             if (getClasificacion() == clasificaciones.flujoSalida)
@@ -325,7 +391,13 @@ namespace Lenguaje2
             if (getClasificacion() == clasificaciones.identificador)
             {
                 Console.Write(getContenido() + " ");
+                //inicia modificacion
+                string nombre = getContenido();
                 match(clasificaciones.identificador); // Validar existencia
+                if(!l.Existe(nombre))
+                {
+                    throw new Error(bitacora, "Error de sintaxis: Variable no ha sido declarda  (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                } //termina modificacion
             }
             else if (getClasificacion() == clasificaciones.numero)
             {
@@ -348,16 +420,28 @@ namespace Lenguaje2
             match("for");
 
             match("(");
-
+            //inicia modificacion
+            string nombre = getContenido();
             match(clasificaciones.identificador); // Validar existencia
+            if(!l.Existe(nombre))
+            {
+                throw new Error(bitacora, "Error de sintaxis: Variable no ha sido declarda  (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+            }
+            //termina modificacion
             match(clasificaciones.asignacion);
             Expresion();
             match(clasificaciones.finSentencia);
 
             Condicion();
             match(clasificaciones.finSentencia);
-
+            //inicia modificacion
+            nombre = getContenido();
             match(clasificaciones.identificador); // Validar existencia
+            if(!l.Existe(nombre))
+            {
+                throw new Error(bitacora, "Error de sintaxis: Variable no ha sido declarda  (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+            }
+            //fin de modificacion
             match(clasificaciones.incrementoTermino);
 
             match(")");

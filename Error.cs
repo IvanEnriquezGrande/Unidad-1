@@ -18,6 +18,5 @@ namespace Lenguaje2
             
             bitacora.WriteLine(error);            
         }
-        
     }
 }
