@@ -24,9 +24,9 @@ namespace Lenguaje2
                 elementos[ultimo++] = element; 
             }
             // else levantar excepción de stack overflow
-            else
+            else 
             {
-                throw new Error(bitacora, "Error stack overflow");
+                throw new Error(bitacora, "Stack overflow");
             }
         }
 
@@ -38,10 +38,7 @@ namespace Lenguaje2
                 return elementos[--ultimo];
             }
             // else levantar excepción de stack underflow
-            else
-            {
-                //throw new Error(bitacora, "Error stack underflow");
-            }
+
             return 0;
         }
 
