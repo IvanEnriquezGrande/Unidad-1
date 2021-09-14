@@ -30,6 +30,20 @@ namespace Lenguaje2
             }
         }
 
+        public void push(float element, StreamWriter bitacora, int linea, int caracter)
+        {
+            if (ultimo < maxElementos)
+            {
+                bitacora.WriteLine("Push = " + element);
+                elementos[ultimo++] = element; 
+            }
+            // else levantar excepción de stack overflow
+            else 
+            {
+                throw new Error(bitacora, "Stack overflow " + "(" + linea + ", " + caracter + ")");
+            }
+        }
+
         public float pop(StreamWriter bitacora)
         {
             if (ultimo > 0)
@@ -41,6 +55,20 @@ namespace Lenguaje2
             else
             {
                 throw new Error(bitacora, "Stack underflow");
+            }
+        }
+
+        public float pop(StreamWriter bitacora, int linea, int caracter)
+        {
+            if (ultimo > 0)
+            {
+                bitacora.WriteLine("Pop = " + elementos[ultimo-1]);
+                return elementos[--ultimo];
+            }
+            // else levantar excepción de stack underflow
+            else
+            {
+                throw new Error(bitacora, "Stack overflow " + "(" + linea + ", " + caracter + ")");
             }
         }
 

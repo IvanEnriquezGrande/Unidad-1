@@ -117,7 +117,7 @@ namespace Lenguaje2
                 string valor;
                 match(clasificaciones.asignacion);
                 Expresion();
-                valor = s.pop(bitacora).ToString();
+                valor = s.pop(bitacora, linea, caracter).ToString();
                 l.setValor(nombre, valor);
             }
 
@@ -214,7 +214,7 @@ namespace Lenguaje2
                 else
                 {                    
                     Expresion();
-                    valor = s.pop(bitacora).ToString();                  
+                    valor = s.pop(bitacora, linea, caracter).ToString();                  
                 }                
 
                 l.setValor(nombre, valor);
@@ -356,16 +356,16 @@ namespace Lenguaje2
                 string operador = getContenido();                              
                 match(clasificaciones.operadorTermino);
                 Termino();
-                float e1 = s.pop(bitacora), e2 = s.pop(bitacora);  
+                float e1 = s.pop(bitacora, linea, caracter), e2 = s.pop(bitacora, linea, caracter);  
                 // Console.Write(operador + " ");
 
                 switch(operador)
                 {
                     case "+":
-                        s.push(e2+e1, bitacora);
+                        s.push(e2+e1, bitacora, linea, caracter);
                         break;
                     case "-":
-                        s.push(e2-e1, bitacora);
+                        s.push(e2-e1, bitacora, linea, caracter);
                         break;                    
                 }
 
@@ -386,16 +386,16 @@ namespace Lenguaje2
                 string operador = getContenido();                
                 match(clasificaciones.operadorFactor);
                 Factor();
-                float e1 = s.pop(bitacora), e2 = s.pop(bitacora); 
+                float e1 = s.pop(bitacora, linea, caracter), e2 = s.pop(bitacora, linea, caracter); 
                 // Console.Write(operador + " ");
 
                 switch(operador)
                 {
                     case "*":
-                        s.push(e2*e1, bitacora);                        
+                        s.push(e2*e1, bitacora, linea, caracter);                        
                         break;
                     case "/":
-                        s.push(e2/e1, bitacora);
+                        s.push(e2/e1, bitacora, linea, caracter);
                         break;                    
                 }
 
@@ -409,7 +409,7 @@ namespace Lenguaje2
             {
                 Console.Write(getContenido() + " ");
 
-                s.push(float.Parse(l.getValor(getContenido())), bitacora);
+                s.push(float.Parse(l.getValor(getContenido())), bitacora, linea, caracter);
                 s.display(bitacora);
                 string nombre = getContenido();
                 if(l.Existe(nombre))
@@ -424,7 +424,7 @@ namespace Lenguaje2
             else if (getClasificacion() == clasificaciones.numero)
             {
                 // Console.Write(getContenido() + " ");
-                s.push(float.Parse(getContenido()), bitacora);
+                s.push(float.Parse(getContenido()), bitacora, linea, caracter);
                 s.display(bitacora);
                 match(clasificaciones.numero);
             }
