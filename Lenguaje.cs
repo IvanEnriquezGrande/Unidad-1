@@ -303,7 +303,7 @@ namespace Lenguaje2
                 }
                 else
                 {
-                    throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                    throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") no ha sido declarada " + "(" + linea + ", " + caracter + ")");
                 }
                                
             }
@@ -415,7 +415,7 @@ namespace Lenguaje2
                 }
                 else
                 {
-                    throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                    throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") no ha sido declarada " + "(" + linea + ", " + caracter + ")");
                 }
             }
             else if (getClasificacion() == clasificaciones.numero)
@@ -446,7 +446,7 @@ namespace Lenguaje2
             }
             else
             {
-                throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") no ha sido declarada " + "(" + linea + ", " + caracter + ")");
             }
             match(clasificaciones.asignacion);
             Expresion();
@@ -461,7 +461,7 @@ namespace Lenguaje2
             }
             else
             {
-                throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") " + "(" + linea + ", " + caracter + ")");
+                throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") no ha sido declarada " + "(" + linea + ", " + caracter + ")");
             }
             match(clasificaciones.incrementoTermino);
 
@@ -499,7 +499,6 @@ namespace Lenguaje2
 
         private void FormatoString(string cadena)
         {
-            //eliminar 
             bool flag = false;
             cadena = cadena.Remove(cadena.Length - 1, 1);
             cadena = cadena.Remove(0, 1);

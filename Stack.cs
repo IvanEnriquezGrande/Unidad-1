@@ -38,7 +38,10 @@ namespace Lenguaje2
                 return elementos[--ultimo];
             }
             // else levantar excepción de stack underflow
-
+            else
+            {
+                throw new Error(bitacora, "Stack underflow");
+            }
             return 0;
         }
 
