@@ -42,7 +42,6 @@ namespace Lenguaje2
             {
                 throw new Error(bitacora, "Stack underflow");
             }
-            return 0;
         }
 
         public void display(StreamWriter bitacora)

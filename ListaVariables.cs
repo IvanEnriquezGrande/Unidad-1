@@ -57,7 +57,6 @@ namespace Lenguaje2
                     return x.getTipoDato();                    
                 }
             }
-
             return Variable.tipo.CHAR;
         }
 
@@ -69,7 +68,6 @@ namespace Lenguaje2
             {
                 bitacora.WriteLine(x.getNombre() + " " + x.getValor() + " " + x.getTipoDato() + " " + (x.getEsConstante() ? "Constante": "Variable"));
             }
-
         }
     }
 }

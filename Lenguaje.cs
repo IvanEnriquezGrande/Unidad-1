@@ -172,6 +172,9 @@ namespace Lenguaje2
                 {
                     throw new Error(bitacora, "Error de sintaxis: La variable (" + nombre + ") no ha sido declarada " + "(" + linea + ", " + caracter + ")");
                 }
+                string valor;
+                valor = Console.ReadLine();
+                l.setValor(nombre, valor);
                 match(clasificaciones.finSentencia);
             }
             else if (getContenido() == "cout")
