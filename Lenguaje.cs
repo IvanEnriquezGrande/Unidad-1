@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-// Requerimiento 1: Implementar el not en el IF
-// Requerimiento 2: Validar la asignacion de STRING en instruccion
-// Requerimiento 3: Implementar la comparacion de tipos de datos en Lista_ID
-// Requerimiento 4: Validar los tipos de datos en la asignacion del cin
-// Requerimiento 5: Implementar el cast
+// Requerimiento 1: Implementar el not en el IF                                     LISTO
+// Requerimiento 2: Validar la asignacion de STRING en instruccion                  LISTO
+// Requerimiento 3: Implementar la comparacion de tipos de datos en Lista_ID        LISTO
+// Requerimiento 4: Validar los tipos de datos en la asignacion del cin             LISTO   
+// Requerimiento 5: Implementar el cast                                             LISTO
 
 
 namespace Lenguaje2
@@ -136,8 +136,17 @@ namespace Lenguaje2
                     maxBytes = Variable.tipo.CHAR;
                     Expresion();
                     valor = s.pop(bitacora, linea, caracter).ToString();
+        
                     if(ejecuta)
                     {
+                        if(tipoDatoExpresion(float.Parse(valor)) > maxBytes)
+                        {
+                            maxBytes = tipoDatoExpresion(float.Parse(valor));
+                        }  
+                        if(maxBytes > l.getTipoDato(nombre))
+                        {
+                            throw new Error(bitacora, "Error de semantica: no se puede asignar un " + maxBytes + " a un (" + l.getTipoDato(nombre) + ") " + "(" + linea + ", " + caracter + ")");
+                        }   
                         l.setValor(nombre, valor);
                     }
                 }
@@ -192,8 +201,20 @@ namespace Lenguaje2
                     if(ejecuta)
                     {
                         string valor;
+                        maxBytes = l.getTipoDato(nombre);
+                        //Console.WriteLine(maxBytes);
                         valor = Console.ReadLine();
-                        l.setValor(nombre, valor);
+
+                        //Console.WriteLine(tipoDatoExpresion(float.Parse(valor)));
+                        //comparar maxBytes con el tipo de dato introducido
+                        if(tipoDatoExpresion(float.Parse(valor)) <= maxBytes)
+                        {
+                            l.setValor(nombre, valor);
+                        }
+                        else
+                        {
+                            throw new Error(bitacora, "Error de semantica: no se puede asignar un " + tipoDatoExpresion(float.Parse(valor)) + " a un (" + maxBytes + ") " + "(" + linea + ", " + caracter + ")");
+                        }
                     }
                 }
                 else
@@ -232,17 +253,23 @@ namespace Lenguaje2
                 string valor;
                 //Requerimiento 2
                 if (getClasificacion() == clasificaciones.cadena)
-                {           
+                {   
+                    Variable.tipo comprobacion = l.getTipoDato(nombre);
                     valor = getContenido();         
-                    match(clasificaciones.cadena);                    
+                    match(clasificaciones.cadena);
+                    if(comprobacion != Variable.tipo.STRING)
+                    {
+                        throw new Error(bitacora, "Error de semantica: no se puede asignar un STRING a un (" + comprobacion + ") " + "(" + linea + ", " + caracter + ")");
+                    }                  
                 }
                 else
                 {                
                     //Requerimiento 3 
                     maxBytes = Variable.tipo.CHAR;  
                     Expresion();
-                    valor = s.pop(bitacora, linea, caracter).ToString();  
-                    if(tipoDatoExpresion(float.Parse(valor))> maxBytes)
+                    valor = s.pop(bitacora, linea, caracter).ToString();
+                    //Console.WriteLine(tipoDatoExpresion(float.Parse(valor)));  
+                    if(tipoDatoExpresion(float.Parse(valor)) > maxBytes)
                     {
                         maxBytes = tipoDatoExpresion(float.Parse(valor));
                     }  
@@ -369,13 +396,31 @@ namespace Lenguaje2
         {
             match("if");
             match("(");
-            bool ejecuta = Condicion();
-            match(")");
-            BloqueInstrucciones(ejecuta && ejecuta2);
-            if (getContenido() == "else")
+            bool ejecuta;
+            if(getContenido() == "!")
             {
-                match("else");
+                match("!");
+                match("(");
+                ejecuta = Condicion();
+                match(")");
+                match(")");
                 BloqueInstrucciones(!ejecuta && ejecuta2);
+                if (getContenido() == "else")
+                {
+                    match("else");
+                    BloqueInstrucciones(ejecuta && ejecuta2);
+                }
+            }
+            else
+            {
+                ejecuta = Condicion();
+                match(")");
+                BloqueInstrucciones(ejecuta && ejecuta2);
+                if (getContenido() == "else")
+                {
+                    match("else");
+                    BloqueInstrucciones(!ejecuta && ejecuta2);
+                }
             }
         }
 
@@ -530,9 +575,18 @@ namespace Lenguaje2
                     //para convertir un float a int necesitamos divir entre 65535 y el residuo es el resultado del cast
                     //para convertir un float a otro tipo de datp necesitamos redondear el numero para elimnar la parte fraccional
                     //para convertir un float a char necesitamos divir entre 65535 y despues entre 256 y el residuo es el resultado del cast
-                    //n1 = Cast(n1, tipoDato);
+                    n1 = Cast(n1, tipoDato);
                     s.push(n1, bitacora, linea, caracter);
-                    maxBytes = tipoDato;
+                    
+                    //Bandera de error con el cast de int a char
+                    if(tipoDato == Variable.tipo.INT && n1 <= 255)
+                    {
+                        maxBytes = Variable.tipo.CHAR;
+                    }
+                    else
+                    {
+                        maxBytes = tipoDato;
+                    }
                 }
             }
         }
@@ -680,6 +734,37 @@ namespace Lenguaje2
             }
 
             return tipoVar;
+        }
+
+        private float Cast(float numero, Variable.tipo tipoDato){
+            Variable.tipo tipoActual = tipoDatoExpresion(numero);
+            switch(tipoActual)
+            {
+                case Variable.tipo.INT:
+                    if(tipoDato == Variable.tipo.CHAR)
+                    {
+                        return numero % 255;
+                    }
+                    else
+                    {
+                        return numero;
+                    }
+                case Variable.tipo.FLOAT:
+                    if(tipoDato == Variable.tipo.INT)
+                    {
+                        return (int)Math.Round(numero % 65535);
+                    }
+                    if(tipoDato == Variable.tipo.CHAR)
+                    {
+                        return (int)Math.Round((numero % 65535) % 255);
+                    }
+                    else
+                    {
+                        return numero;
+                    }
+                default:
+                    return numero;
+            }
         }
     }
 }
